@@ -44,7 +44,7 @@ func New(privilegedUsers []string, userPermissionsRaw map[string]string) validat
 
 			repoStr := strings.TrimSuffix(strings.TrimPrefix(envRepo[1], "["), "]")
 
-			repos := strings.Split(repoStr, ",")
+			repos := strings.Split(repoStr, "|")
 
 			envMap[env] = repos
 

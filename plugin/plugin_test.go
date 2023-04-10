@@ -55,8 +55,8 @@ func TestPlugin(t *testing.T) {
 		"admin",
 	}
 	userPermissions := map[string]string{
-		"johndoe": "uat[repo1,repo2]",
-		"lucifer": "uat[repo1,repo2];prod[repo1]",
+		"johndoe": "uat[repo1|repo2]",
+		"lucifer": "uat[repo1|repo2];prod[repo1]",
 	}
 
 	cases := []struct {
