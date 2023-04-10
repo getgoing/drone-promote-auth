@@ -55,8 +55,8 @@ func TestPlugin(t *testing.T) {
 		"admin",
 	}
 	userPermissions := map[string]string{
-		"johndoe": "uat",
-		"lucifer": "uat;prod",
+		"johndoe": "uat[repo1,repo2]",
+		"lucifer": "uat[repo1,repo2];prod[repo1]",
 	}
 
 	cases := []struct {
@@ -96,6 +96,9 @@ func TestPlugin(t *testing.T) {
 					Trigger: "johndoe",
 					Deploy:  "uat",
 				},
+				Repo: drone.Repo{
+					Name: "repo1",
+				},
 			},
 			expectedResult: nil,
 		},
@@ -116,6 +119,9 @@ func TestPlugin(t *testing.T) {
 					Trigger: "lucifer",
 					Deploy:  "prod",
 				},
+				Repo: drone.Repo{
+					Name: "repo1",
+				},
 			},
 			expectedResult: nil,
 		},
@@ -126,8 +132,24 @@ func TestPlugin(t *testing.T) {
 					Trigger: "lucifer",
 					Deploy:  "prod",
 				},
+				Repo: drone.Repo{
+					Name: "repo1",
+				},
 			},
 			expectedResult: nil,
+		},
+		{
+			input: &validator.Request{
+				Build: drone.Build{
+					Event:   "promote",
+					Trigger: "lucifer",
+					Deploy:  "prod",
+				},
+				Repo: drone.Repo{
+					Name: "repo2",
+				},
+			},
+			expectedResult: validator.ErrSkip,
 		},
 	}
 
