@@ -6,6 +6,7 @@ package plugin
 
 import (
 	"context"
+	"encoding/csv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -30,26 +31,26 @@ func stringInSlice(str string, slice []string) bool {
 }
 
 // New returns a new validator plugin.
-func New(privilegedUsers []string, userPermissionsRaw map[string]string) validator.Plugin {
+func New(privilegedUsers []string, userPermissionsRaw string) validator.Plugin {
+	//userPermissionsRaw sturcture `0.userName, 1.env, 2.repoName`
+	userData, err := csv.NewReader(strings.NewReader(userPermissionsRaw)).ReadAll()
+	if err != nil {
+		logrus.Error(err)
+	}
+
 	userPermissions := make(map[string]map[string][]string)
-
-	// parse list of envs[repos] each user is allowed to promote builds to
-	for user, envString := range userPermissionsRaw {
-		envMap := make(map[string][]string)
-		envs := strings.Split(envString, ";")
-
-		for _, envPerm := range envs {
-			envRepo := strings.Split(envPerm, "[")
-			env := envRepo[0]
-
-			repoStr := strings.TrimSuffix(strings.TrimPrefix(envRepo[1], "["), "]")
-
-			repos := strings.Split(repoStr, "|")
-
-			envMap[env] = repos
-
+	for _, row := range userData {
+		userMap, ok := userPermissions[row[0]]
+		if !ok {
+			userMap = make(map[string][]string)
+			userPermissions[row[0]] = userMap
 		}
-		userPermissions[user] = envMap
+		userEnv, ok := userMap[row[1]]
+		if !ok {
+			userEnv = make([]string, 0)
+			userMap[row[1]] = userEnv
+		}
+		userMap[row[1]] = append(userEnv, row[2])
 	}
 
 	return &plugin{

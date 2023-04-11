@@ -54,10 +54,13 @@ func TestPlugin(t *testing.T) {
 		"octopus",
 		"admin",
 	}
-	userPermissions := map[string]string{
-		"johndoe": "uat[repo1|repo2]",
-		"lucifer": "uat[repo1|repo2];prod[repo1]",
-	}
+	userPermissions := `
+johndoe,uat,repo1
+johndoe,uat,repo2
+lucifer,uat,repo1
+lucifer,uat,repo2
+lucifer,prod,repo1
+`
 
 	cases := []struct {
 		input          *validator.Request
