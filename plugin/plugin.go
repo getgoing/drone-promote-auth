@@ -9,7 +9,7 @@ import (
 	"encoding/csv"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/drone/drone-go/plugin/validator"
 )
@@ -35,7 +35,7 @@ func New(privilegedUsers []string, userPermissionsRaw string) validator.Plugin {
 	//userPermissionsRaw sturcture `0.userName, 1.env, 2.repoName`
 	userData, err := csv.NewReader(strings.NewReader(userPermissionsRaw)).ReadAll()
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 	}
 
 	userPermissions := make(map[string]map[string][]string)
@@ -65,13 +65,18 @@ type plugin struct {
 }
 
 func (p *plugin) Validate(ctx context.Context, req *validator.Request) error {
+	fields := log.Fields{
+		"user":  req.Build.Trigger,
+		"event": req.Build.Event,
+		"env":   req.Build.Deploy,
+		"repo":  req.Repo.Name,
+	}
 	// check if this event requires auth
 	if stringInSlice(req.Build.Event, restrictedEvents) {
 		// check if user is privilged to promote to any env
 		if stringInSlice(req.Build.Trigger, p.privilegedUsers) {
-			logrus.Debugf(
-				"User %s has been authorized to %s to/on %s env in %s repo as a privileged user",
-				req.Build.Trigger, req.Build.Event, req.Build.Deploy, req.Repo.Name,
+			log.WithFields(fields).Info(
+				"User has been authorized as a privileged user",
 			)
 			return nil
 		}
@@ -82,17 +87,15 @@ func (p *plugin) Validate(ctx context.Context, req *validator.Request) error {
 
 			for env, repos := range allowedEnvs {
 				if env == req.Build.Deploy && stringInSlice(req.Repo.Name, repos) {
-					logrus.Debugf(
-						"User %s has been authorized to %s to/on %s env in %s repo according to user level permissions",
-						req.Build.Trigger, req.Build.Event, req.Build.Deploy, req.Repo.Name,
+					log.WithFields(fields).Info(
+						"User has been authorized according to user level permissions",
 					)
 					return nil
 				}
 			}
 
 		}
-
-		logrus.Debugf("user %s not allowed to %s to/on %s in %s repo", req.Build.Trigger, req.Build.Event, req.Build.Deploy, req.Repo.Name)
+		log.WithFields(fields).Info("User is not allowed")
 		return validator.ErrSkip
 	}
 
