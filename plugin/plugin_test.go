@@ -167,6 +167,32 @@ lucifer,prod,repo1
 			},
 			expectedResult: nil,
 		},
+		{
+			input: &validator.Request{
+				Build: drone.Build{
+					Event:   "promote",
+					Trigger: "any_user",
+					Deploy:  "staging-fe",
+				},
+				Repo: drone.Repo{
+					Name: "any_repo1",
+				},
+			},
+			expectedResult: nil,
+		},
+		{
+			input: &validator.Request{
+				Build: drone.Build{
+					Event:   "promote",
+					Trigger: "any_user",
+					Deploy:  "stagin",
+				},
+				Repo: drone.Repo{
+					Name: "any_repo1",
+				},
+			},
+			expectedResult: validator.ErrSkip,
+		},
 	}
 
 	plugin := New(privilegedUsers, userPermissions)
