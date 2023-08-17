@@ -185,7 +185,7 @@ lucifer,prod,repo1
 				Build: drone.Build{
 					Event:   "promote",
 					Trigger: "any_user",
-					Deploy:  "stagin",
+					Deploy:  "stagin", // intentional typo to test prefix matching
 				},
 				Repo: drone.Repo{
 					Name: "any_repo1",
