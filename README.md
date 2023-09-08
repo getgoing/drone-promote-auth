@@ -1,5 +1,4 @@
-[![Build Status](https://cloud.drone.io/api/badges/teryaev/drone-promote-auth/status.svg)](https://cloud.drone.io/teryaev/drone-promote-auth)
-
+# This plugin has been deprecated and archived. See https://github.com/getgoing/drone-validation instead
 
 A validation extension to Drone validation plugin to restrict users who can promote builds. _Please note this project requires Drone server version 1.4 or higher._
 
